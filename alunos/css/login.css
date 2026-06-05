@@ -1,0 +1,173 @@
+/* ==========================================================
+   🎨 ESTÍTICA EXCLUSIVA PARA O LOGIN DO ALUNO
+   ========================================================== */
+
+:root {
+    --bg-principal: #f8fafc;
+    --azul-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    --texto-escuro: #0f172a;
+    --texto-mutado: #64748b;
+    --card-bg: #ffffff;
+    --borda: #e2e8f0;
+    --azul-estudante: #4f46e5;
+    --alerta-fundo: #fff1f2;
+    --alerta-texto: #f43f5e;
+}
+
+/* ===== RESETS E ESTRUTURA GERAL ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--bg-principal);
+    padding: 20px;
+}
+
+/* ===== CAIXA DE LOGIN ===== */
+.login-container {
+    background: var(--card-bg);
+    padding: 45px 40px;
+    border-radius: 32px;
+    border: 1px solid rgba(0, 0, 0, 0.02);
+    box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05);
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+    animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ===== CABEÇALHO ===== */
+.login-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    background: var(--azul-gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+}
+
+.login-header p {
+    color: var(--texto-mutado);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 30px;
+}
+
+/* ===== ALERTA DE ERRO DINÂMICO ===== */
+.error-message {
+    display: none;
+    background: var(--alerta-fundo);
+    color: var(--alerta-texto);
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: left;
+    animation: shake 0.4s ease-in-out;
+}
+
+/* ===== CAMPOS DO FORMULÁRIO ===== */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--texto-escuro);
+    margin-bottom: 8px;
+    padding-left: 4px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid var(--borda);
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.3s;
+    background: #fff;
+}
+
+.form-group input:focus {
+    border-color: var(--azul-estudante);
+    box-shadow: 0 10px 20px -8px rgba(79, 70, 229, 0.15);
+}
+
+/* ===== BOTÃO ENTRAR ===== */
+.btn-estudante {
+    width: 100%;
+    background: var(--azul-gradient);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 16px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-top: 10px;
+}
+
+.btn-estudante:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px -5px rgba(79, 70, 229, 0.4);
+}
+
+.btn-estudante:active {
+    transform: translateY(0);
+}
+
+/* ===== LINKS E RODAPÉ ===== */
+.login-footer {
+    margin-top: 25px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.login-footer a {
+    color: var(--azul-estudante);
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.2s;
+}
+
+.login-footer a:hover {
+    color: #312e81;
+}
+
+/* ===== ANIMAÇÕES COGNITIVAS ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 35px 24px;
+        border-radius: 24px;
+    }
+}
