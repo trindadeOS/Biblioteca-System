@@ -1,0 +1,93 @@
+<?php
+session_start();
+
+// Se o aluno já estiver logado, redireciona direto para a área logada
+if (isset($_SESSION['aluno_id'])) {
+    header('Location: aluno.php');
+    exit();
+}
+
+// Captura mensagem de erro enviada pelo script de processamento, se houver
+$mensagem_erro = isset($_SESSION['erro_login']) ? $_SESSION['erro_login'] : '';
+unset($_SESSION['erro_login']); // Limpa a mensagem após capturar
+?>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login do Aluno - CETEPES Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/login.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Área do Aluno</h1>
+            <p>Logue com seu email enova para acessar nosso acervo digital.</p>
+        </div>
+
+        <!-- Exibe mensagem de erro (tanto do PHP quanto do JS) -->
+        <div class="error-message" id="error-box" style="<?= !empty($mensagem_erro) ? 'display: block;' : 'display: none;' ?>">
+            <?= htmlspecialchars($mensagem_erro) ?>
+        </div>
+
+        <!-- O formulário envia os dados via POST para o arquivo de autenticação -->
+        <form id="loginForm" action="aluno.php" method="POST" onsubmit="return validarLogin(event)">
+            <div class="form-group">
+                <label for="usuario">E-mail ou Matrícula</label>
+                <input type="text" id="usuario" name="usuario" placeholder="exemplo@escola.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="senha">Palavra-passe</label>
+                <input type="password" id="senha" name="senha" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn-estudante">Acessar Espaço</button>
+
+            <div class="google-login-area" style="margin-top: 25px; padding-top: 20px; border-top: 2px solid var(--borda);">
+                <p style="font-size: 13px; color: var(--texto-mutado); margin-bottom: 15px; font-weight: 600;">Ou acesse com a sua conta institucional</p> 
+                
+                <div id="g_id_onload"
+                     data-client_id="115550235490-qp1sunedndr3que32fingf3pkn89h2mv.apps.googleusercontent.com"
+                     data-context="signin"
+                     data-ux_mode="redirect"
+                     data-login_uri="http://localhost/biblioteca/alunos/login_google.php"
+                     data-auto_prompt="false">
+                </div>
+
+                <div style="display: flex; justify-content: center;">
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-shape="pill"
+                         data-theme="outline"
+                         data-text="signin_with"
+                         data-size="large"
+                         data-logo_alignment="left">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function validarLogin(event) {
+            const usuario = document.getElementById('usuario').value.trim();
+            const senha = document.getElementById('senha').value.trim();
+            const errorBox = document.getElementById('error-box');
+
+            if (usuario === "" || senha === "") {
+                event.preventDefault(); // Impede o envio se algum campo estiver em branco
+                errorBox.innerText = "🚨 Por favor, introduza o seu utilizador e palavra-passe.";
+                errorBox.style.display = "block";
+                return false;
+            }
+            
+            return true; // Permite o envio para o PHP
+        }
+    </script>
+</body>
+</html>
