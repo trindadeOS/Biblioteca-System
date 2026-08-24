@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 4.9.0.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Tempo de geração: 23/08/2026 às 07:50
--- Versão do servidor: 10.4.32-MariaDB
--- Versão do PHP: 8.2.12
+-- Host: sql102.infinityfree.com
+-- Tempo de geração: 23/08/2026 às 22:40
+-- Versão do servidor: 11.4.12-MariaDB
+-- Versão do PHP: 7.2.22
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -18,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Banco de dados: `bibliotecacetepes`
+-- Banco de dados: `if0_42024997_biblioteca`
 --
 
 -- --------------------------------------------------------
@@ -32,17 +33,21 @@ CREATE TABLE `alunos` (
   `NOME` varchar(45) NOT NULL,
   `EMAIL` varchar(80) NOT NULL,
   `SENHA` varchar(20) NOT NULL,
-  `STATUS` enum('ATIVO','DESATIVADO') DEFAULT 'ATIVO'
+  `STATUS` enum('ATIVO','DESATIVADO') DEFAULT 'ATIVO',
+  `TURMA` varchar(50) DEFAULT NULL,
+  `TURNO` varchar(50) DEFAULT NULL,
+  `CURSO` varchar(50) DEFAULT NULL,
+  `perfil_completo` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `alunos`
 --
 
-INSERT INTO `alunos` (`ID`, `NOME`, `EMAIL`, `SENHA`, `STATUS`) VALUES
-(7, 'Seven Fps', 'fpsseven03@gmail.com', '$2y$10$VPXvYL.y.5Cs4', 'ATIVO'),
-(8, 'faixa 10 Ssssa', 'gamaflavio1000@gmail.com', '$2y$10$KeKNu0DjrgiRR', 'ATIVO'),
-(9, 'TRINDADEOS', 'teste@gmail.com', 'italo1234', 'ATIVO');
+INSERT INTO `alunos` (`ID`, `NOME`, `EMAIL`, `SENHA`, `STATUS`, `TURMA`, `TURNO`, `CURSO`, `perfil_completo`) VALUES
+(7, 'Italo', 'fpsseven03@gmail.com', '$2y$10$VPXvYL.y.5Cs4', 'ATIVO', '2', 'Matutino', '2', 1),
+(9, 'Italo Trindade Gama', 'teste@gmail.com', 'italo1234', 'ATIVO', '2 A', 'Vespertino', 'Informatica', 1),
+(10, 'Italo teste de coisas', 'gamaflavio1000@gmail.com', '', 'ATIVO', '2', 'Vespertino', 'a', 1);
 
 -- --------------------------------------------------------
 
@@ -112,7 +117,7 @@ CREATE TABLE `configuracoes` (
 --
 
 INSERT INTO `configuracoes` (`id`, `dias_prazo`, `limite_livros`, `ultramsg_instance`, `ultramsg_token`) VALUES
-(1, 7, 3, 'instance178315', 'qnt8fmss6rk6oohy');
+(1, 7, 2, 'instance178315', 'qnt8fmss6rk6oohy');
 
 -- --------------------------------------------------------
 
@@ -135,46 +140,20 @@ CREATE TABLE `emprestimos` (
 --
 
 INSERT INTO `emprestimos` (`ID`, `NOME`, `LIVRO`, `TELEFONE`, `STATUS`, `DATA`, `aluno_id`) VALUES
-(1, 'Seven Fps', 'Java: Como Programar', '53', 'Cancelado', '2026-07-02 12:01:33', 7),
-(2, 'Seven Fps', 'programador sql', '73981035809', 'Cancelado', '2026-07-02 12:02:24', 7),
-(3, 'Seven Fps', 'programador sql', '73981035809', 'Cancelado', '2026-07-02 12:04:29', 7),
-(4, 'Seven Fps', 'Java: Como Programar', '3123', 'Cancelado', '2026-07-02 12:13:44', 7),
-(5, 'Seven Fps', 'Java: Como Programar', '34', 'Cancelado', '2026-07-02 12:14:01', 7),
-(6, 'Seven Fps', 'Java: Como Programar', '43', 'Cancelado', '2026-07-02 12:14:04', 7),
-(7, 'Trindade', 'Java: Como Programar', '73981035809', 'Cancelado', '2026-07-02 12:51:27', 7),
-(8, 'Seven Fps', 'Java: Como Programar', '888', 'Cancelado', '2026-07-02 16:35:14', 7),
-(9, 'Seven Fps', 'programador sql', '737473', 'Cancelado', '2026-08-21 01:02:24', 7),
-(10, 'Seven Fps', 'Java: Como Programar', 'juuu', 'Cancelado', '2026-08-21 01:07:46', 7),
-(11, 'Seven Fps', 'Java: Como Programar', 'iiiiii', 'Cancelado', '2026-08-21 01:07:50', 7),
-(12, 'TRINDADEOS', 'programador sql', '73981035809', 'Cancelado', '2026-08-22 20:11:48', 9),
-(13, 'TRINDADEOS', 'TrindadeOS', '73981035809', 'Cancelado', '2026-08-22 20:24:57', 9),
-(14, 'TRINDADEOS', 'TrindadeOS', '', 'Cancelado', '2026-08-23 02:17:48', 9),
-(15, 'TRINDADEOS', 'TrindadeOS', '', 'Cancelado', '2026-08-23 02:19:16', 9),
-(16, 'TRINDADEOS', 'TrindadeOS', '', 'Cancelado', '2026-08-23 02:19:19', 9),
-(17, 'TRINDADEOS', 'TrindadeOS', '', 'Cancelado', '2026-08-23 02:19:22', 9),
-(18, 'TRINDADEOS', 'Java: Como Programar', '', 'Cancelado', '2026-08-23 02:22:29', 9),
-(19, 'TRINDADEOS', 'TrindadeOS', '', 'Cancelado', '2026-08-23 02:23:12', 9),
-(20, 'TRINDADEOS', 'TrindadeOS', '', 'Cancelado', '2026-08-23 02:27:12', 9),
-(21, 'TRINDADEOS', 'Java: Como Programar', '', 'Cancelado', '2026-08-23 02:27:48', 9),
-(22, 'TRINDADEOS', 'TrindadeOS', '', 'Cancelado', '2026-08-23 02:29:17', 9),
-(23, 'TRINDADEOS', 'TrindadeOS', '', 'Cancelado', '2026-08-23 02:29:49', 9),
-(24, 'TRINDADEOS', 'programador sql', '', 'Cancelado', '2026-08-23 02:30:41', 9),
-(25, 'TRINDADEOS', 'TrindadeOS', '', 'Cancelado', '2026-08-23 02:37:27', 9),
-(26, 'Trindade', 'Java: Como Programar', '', 'Cancelado', '2026-08-23 03:24:17', 1),
-(27, 'Trindade', 'Java: Como Programar', '', 'Cancelado', '2026-08-23 03:25:52', 1),
-(28, 'Trindade', 'Java: Como Programar', '', 'Cancelado', '2026-08-23 03:25:57', 1),
-(29, 'Trindade', 'Java: Como Programar', '', 'Cancelado', '2026-08-23 03:29:46', 1),
-(30, 'Trindade', 'Java: Como Programar', '', 'Cancelado', '2026-08-23 03:30:30', 1),
-(31, 'Trindade', 'Java: Como Programar', '', 'Cancelado', '2026-08-23 04:15:37', 1),
-(32, 'Trindade', 'Java: Como Programar', '', 'Cancelado', '2026-08-23 04:15:53', 1),
-(33, 'italo', 'Java: Como Programar', '', 'Cancelado', '2026-08-23 06:16:59', 2),
-(34, 'italo', 'Java: Como Programar', '', 'Cancelado', '2026-08-23 06:32:21', 2),
-(35, 'italo', 'Java: Como Programar', '', 'Cancelado', '2026-08-23 06:36:17', 2),
-(36, 'italo', 'Java: Como Programar', '', 'Cancelado', '2026-08-23 06:36:24', 2),
-(37, 'italo', 'Aprendendo SQL', '', 'Cancelado', '2026-08-23 06:54:09', 2),
-(38, 'Trindade', 'Aprendendo SQL', '', 'Cancelado', '2026-08-23 06:56:03', 1),
-(39, 'Trindade', 'Aprendendo SQL', '', 'Cancelado', '2026-08-23 06:56:09', 1),
-(40, 'Trindade', 'Aprendendo SQL', '', 'Cancelado', '2026-08-23 06:56:27', 1);
+(59, 'Italo teste de coisas', 'Curso Intensivo de MySQL', '', 'CONCLUIDO', '2026-08-23 22:32:19', 10),
+(58, 'italo', 'Aprendendo SQL', '', 'CONCLUIDO', '2026-08-23 22:30:20', 2),
+(57, 'italo', 'Curso Intensivo de MySQL', '', 'CONCLUIDO', '2026-08-23 22:29:40', 2),
+(56, 'italo', 'Aprendendo SQL', '', 'CONCLUIDO', '2026-08-23 22:26:49', 2),
+(55, 'italo', 'Aprendendo SQL', '', 'Cancelado', '2026-08-23 22:21:49', 2),
+(54, 'italo', 'Curso Intensivo de MySQL', '', 'Cancelado', '2026-08-23 22:20:09', 2),
+(53, 'italo', 'Desenvolvimento real de Software', '', 'CONCLUIDO', '2026-08-23 22:19:02', 2),
+(52, 'Italo Trindade Gama', 'Curso Intensivo de MySQL', '', 'CONCLUIDO', '2026-08-23 22:13:25', 9),
+(51, 'Seven Fps', 'Curso Intensivo de MySQL', '', 'PENDENTE', '2026-08-23 20:36:22', 7),
+(50, 'Seven Fps', 'Aprendendo SQL', '', 'Cancelado', '2026-08-23 20:14:20', 7),
+(49, 'italo', 'Curso Intensivo de MySQL', '', 'Cancelado', '2026-08-23 20:08:29', 2),
+(48, 'italo', 'Desenvolvimento real de Software', '', 'CONCLUIDO', '2026-08-23 18:47:56', 2),
+(47, 'Seven Fps', 'Desenvolvimento real de Software', '', 'CONCLUIDO', '2026-08-23 18:47:44', 7),
+(46, 'Seven Fps', 'Desenvolvimento real de Software', '', 'CONCLUIDO', '2026-08-23 18:48:21', 7);
 
 -- --------------------------------------------------------
 
@@ -200,16 +179,7 @@ CREATE TABLE `emp_pessoal` (
 --
 
 INSERT INTO `emp_pessoal` (`ID`, `NOME`, `TURMA`, `TURNO`, `CURSO`, `LIVRO`, `DATA`, `SERIE`, `TELEFONE`, `AVISO_ENVIADO`) VALUES
-(6, 'italo', 'A', 'VESP', 'INF', 'Java', '2026-05-28', '2', '384343', 1),
-(5, 'italo', 'A', 'VESP', 'INF', 'GestÃ£o Comercial', '2026-05-28', '2', '838383', 1),
-(4, 'Trindade', 'A', 'VESP', 'INF', 'PHP', '2026-05-25', '2', '73', 1),
-(7, 'debora', 'a', 'vesp', 'inf', 'fundamentos Java', '2026-06-01', '2', '73981683838', 1),
-(8, 'Trindade testes', 'A', 'Vesp', 'InF', 'SQLITE', '2026-06-01', '1', '73981035809', 1),
-(9, 'adler', 'A', 'vespet', 'tec.informatica', '20mil leguas submarina', '2026-06-02', '2 ano', '73991019784', 1),
-(10, 'jessica', 'a', 'vesp', 'inf', 'matematica', '2026-06-02', '1', '73999347646', 1),
-(12, 'trindadev2', 'a', 'vesp', 'inf', 'Java para burros', '2026-08-22', '2', '73981035909', 1),
-(13, 'sad', 'a', 'vesp', 'inf', 'Java: Como Programar', '2026-08-23', '2', '333', 0),
-(14, 'trtr', 'a', 'vesp', 'infffff', 'imggg', '2026-08-23', '2', '222', 0);
+(15, 'TRINDADEOS', '1', 'a', 'b', 'c', '2026-08-23', '2', '2', 0);
 
 -- --------------------------------------------------------
 
@@ -233,8 +203,9 @@ CREATE TABLE `livros` (
 --
 
 INSERT INTO `livros` (`id`, `titulo`, `autor`, `sinopse`, `categoria`, `status`, `imagem`, `quantidade`) VALUES
-(14, 'Desenvolvimento real de Software', 'Gabriel Urma', 'Um livro sobre desenvolvimento de software', 'Programação', 'Disponivel', 'java-livro-09.jpg', 100),
-(15, 'Aprendendo SQL', 'O\'Reilly', 'SQL', 'Programação', 'Disponivel', '911EOvjFRbL._UF1000,1000_QL80_.jpg', 100);
+(14, 'Desenvolvimento real de Software', 'Gabriel Urma', 'Um livro sobre desenvolvimento de software', 'Programação', 'Disponivel', 'java-livro-09.jpg', 96),
+(15, 'Aprendendo SQL', 'O\'Reilly', 'SQL', 'Programação', 'Disponivel', '911EOvjFRbL._UF1000,1000_QL80_.jpg', 95),
+(16, 'Curso Intensivo de MySQL', 'Rick Silva', 'O livro Curso Intensivo de MySQL Ã© uma breve e prÃ¡tica introduÃ§Ã£o ao desenvolvimento baseado em bancos de dados relacionais. EstÃ¡ repleto de exemplos prÃ¡ticos e conselhos de especialistas que o farÃ£o aprender da forma mais rÃ¡pida possÃ­vel. VocÃª aprenderÃ¡ os conceitos bÃ¡sicos do SQL, como criar um banco de dados, criar queries SQL para extrair dados e trabalhar com eventos, procedures e funÃ§Ãµes. AprenderÃ¡ tambÃ©m a adicionar restriÃ§Ãµes a tabelas para implementar regras de permissÃµes de dados e a usar Ã­ndices para acelerar o acesso aos dados. VocÃª ainda explorarÃ¡ como chamar o MySQL a partir das linguagens PHP, Python e Java. Nos trÃªs projetos finais, aprenderÃ¡ a criar um banco de dados de condiÃ§Ãµes meteorolÃ³gicas do zero, a usar triggers a fim de evitar erros em um banco de dados eleitoral e a usar views para proteger dados confidenciais em um banco de dados salariais. VocÃª tambÃ©m aprenderÃ¡ a: â€¢ Consultar via query tabelas de banco de dados para obter informaÃ§Ãµes especÃ­ficas, ordenar os resultados, comentar o cÃ³digo SQL e a lidar com valores null â€¢ Definir as colunas da tabela para armazenar strings, nÃºmeros inteiros e datas e determinar quais tipos de dados usar â€¢ Fazer mÃºltiplos joins com tabelas de banco de dados, bem como usar tabelas temporÃ¡rias, expressÃµes de tabela comuns, tabelas derivadas e subqueries â€¢ Adicionar, alterar e remover dados de tabelas, criar views com base em queries especÃ­ficas, escrever rotinas armazenadas reutilizÃ¡veis e automatizar e agendar eventos Como o Curso Intensivo de MySQL Ã© o recurso de inÃ­cio rÃ¡pido e perfeito para desenvolvedores de banco de dados, vocÃª conhecerÃ¡ as ferramentas de que precisa para criar e gerenciar sistemas de armazenamento de dados baseados em MySQL rÃ¡pidos, poderosos e seguros.', 'Programação', 'Disponivel', 'mysql.jpg', 96);
 
 -- --------------------------------------------------------
 
@@ -258,17 +229,10 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`ID`, `NOME`, `SENHA`, `CPF`, `EMAIL`, `TELEFONE`, `TIPO`) VALUES
 (1, 'Trindade', '1234', '111111', 'trindadedev@gmail.com', '71717171', 'Admin'),
-(2, 'italo', '1234', '1111', 'trindadedev2@gmail.com', '73999112030', 'Bibliotecario'),
-(8, 'Trindade bibliotecario', '1234', '12312312', 'testeeeee@gmail.com', '9192391', 'Bibliotecario'),
-(9, 'debora', '1234', '8583839t8', 'mimserdev@gmail.com', '995939848', 'Bibliotecario'),
-(10, 'andrade ', '1234', '05334265538', 'adler@gmail.com', '73991019784', 'Bibliotecario'),
-(11, 'PROFESSORA', '1234', '129123', 'TESTEE@GMAIL.COM', '1237123', 'Bibliotecario'),
-(12, 'Trindadev2', 'italo1234', '10910910952', 'trindadedevteste020@gmail.com', '73981035809', 'Bibliotecario'),
-(13, 'Trindadev2', 'italo1234', '2131232', 'trindadeteste00@gmail.com', '739810935', 'Bibliotecario'),
-(14, '123123', '123123', '1123123', '123123213@g', '213123', 'Bibliotecario');
+(2, 'italo', '1234', '1111', 'trindadedev2@gmail.com', '73999112030', 'Bibliotecario');
 
 --
--- Índices para tabelas despejadas
+-- Índices de tabelas apagadas
 --
 
 --
@@ -324,14 +288,14 @@ ALTER TABLE `usuarios`
   ADD UNIQUE KEY `TELEFONE` (`TELEFONE`);
 
 --
--- AUTO_INCREMENT para tabelas despejadas
+-- AUTO_INCREMENT de tabelas apagadas
 --
 
 --
 -- AUTO_INCREMENT de tabela `alunos`
 --
 ALTER TABLE `alunos`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de tabela `auditoria`
@@ -343,25 +307,25 @@ ALTER TABLE `auditoria`
 -- AUTO_INCREMENT de tabela `avisos`
 --
 ALTER TABLE `avisos`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de tabela `emprestimos`
 --
 ALTER TABLE `emprestimos`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT de tabela `emp_pessoal`
 --
 ALTER TABLE `emp_pessoal`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de tabela `livros`
 --
 ALTER TABLE `livros`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de tabela `usuarios`
