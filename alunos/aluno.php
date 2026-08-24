@@ -1,12 +1,6 @@
 <?php
 session_start();
 
-// Validação de acesso restrito
-if (!isset($_SESSION['aluno_id']) || empty($_SESSION['aluno_id'])) {
-    header("Location: login.php");
-    exit();
-}
-
 $caminho_conexao = __DIR__ . "/../conexao.php";
 if (file_exists($caminho_conexao)) {
     require_once($caminho_conexao);
@@ -16,6 +10,33 @@ if (file_exists($caminho_conexao)) {
 
 $aluno_id   = $_SESSION['aluno_id'];
 $aluno_nome = $_SESSION['aluno_nome'] ?? 'Aluno';
+
+
+
+// Validação de acesso restrito
+if (!isset($_SESSION['aluno_id']) || empty($_SESSION['aluno_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+// Verifica se o aluno está logado
+if (!isset($_SESSION['aluno_id']) || empty($_SESSION['aluno_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+// Verifica se o perfil está completo
+$id_aluno = $_SESSION['aluno_id'];
+$check_perfil = $conn->query("SELECT perfil_completo FROM alunos WHERE ID = $id_aluno");
+if ($check_perfil && $dados_aluno = $check_perfil->fetch_assoc()) {
+    // Se não completou e a página atual não for a de completar perfil, redireciona
+    if (isset($dados_aluno['perfil_completo']) && $dados_aluno['perfil_completo'] == 0) {
+        header("Location: completar_perfil.php");
+        exit();
+    }
+}
+
+
 
 // Captura mensagens de feedback da URL (?status=sucesso)
 $mensagem_feedback = '';
@@ -81,7 +102,7 @@ if ($dados_livros && $dados_livros->num_rows > 0) {
     <style>
         body.theme-estante {
             --bg-body: #1a120c radial-gradient(circle, #2d1e12 0%, #110b07 100%);
-            --text-color: #f3f4f6;
+            --text-color: #FFFFFF;
             --nav-bg: #28160c;
             --nav-border: #3d2314;
             --brand-color: #fbbf24;
@@ -100,7 +121,7 @@ if ($dados_livros && $dados_livros->num_rows > 0) {
 
         body.theme-dark {
             --bg-body: #0f172a;
-            --text-color: #f8fafc;
+            --text-color: #FFFFFF;
             --nav-bg: #1e293b;
             --nav-border: #334155;
             --brand-color: #38bdf8;
@@ -119,7 +140,7 @@ if ($dados_livros && $dados_livros->num_rows > 0) {
 
         body.theme-light {
             --bg-body: #f8fafc;
-            --text-color: #0f172a;
+            --text-color: #000000;
             --nav-bg: #ffffff;
             --nav-border: #e2e8f0;
             --brand-color: #2563eb;
@@ -324,7 +345,7 @@ if ($dados_livros && $dados_livros->num_rows > 0) {
 
         .capa-mockup { width: 100%; height: 230px; background: #000; border-radius: 8px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; }
         .capa-mockup img { width: 100%; height: 100%; object-fit: cover; }
-        .livro-titulo { font-size: 15px; font-weight: 700; margin: 10px 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .livro-titulo { font-size: 15px; font-weight: 700; margin: 10px 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-color);}
         .tag-categoria { position: absolute; top: 8px; left: 8px; background: rgba(0, 0, 0, 0.75); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
         .search-bar { background: var(--input-bg) !important; border: 1px solid var(--card-border) !important; color: var(--text-color) !important; }
 
@@ -339,17 +360,31 @@ if ($dados_livros && $dados_livros->num_rows > 0) {
             backdrop-filter: blur(4px);
         }
 
-        .modal-card {
-            background: var(--modal-bg);
-            border: 1px solid var(--card-border);
-            color: var(--text-color);
-            width: 90%;
-            max-width: 500px;
-            border-radius: 16px;
-            padding: 24px;
-            position: relative;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
+ .modal-card {
+    background: var(--card-bg, #1e293b);
+    border: 1px solid var(--card-border, #334155);
+    border-radius: 16px;
+    padding: 24px;
+    width: 90%;
+    max-width: 450px;
+    max-height: 85vh; /* Garante que o modal não passe da altura da tela */
+    overflow-y: auto;  /* Adiciona barra de rolagem se o conteúdo for muito grande */
+    box-sizing: border-box;
+    position: relative;
+    color: var(--text-color, #ffffff);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* Caixa específica da sinopse dentro do modal */
+#modal-sinopse {
+    max-height: 120px;    /* Limita o tamanho máximo da sinopse */
+    overflow-y: auto;     /* Permite rolar apenas dentro da sinopse se precisar */
+    padding-right: 5px;
+    font-size: 13px;
+    opacity: 0.9;
+    line-height: 1.5;
+    margin: 0;
+}
 
         .modal-close {
             position: absolute;
@@ -403,6 +438,51 @@ if ($dados_livros && $dados_livros->num_rows > 0) {
         .notificacao-item:last-child {
             margin-bottom: 0;
         }
+        
+        /* RESPONSIVIDADE PARA CELULARES E TABLETS */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 15px;
+        text-align: center;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px !important;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .grid-livros {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 20px 10px;
+    }
+
+    .card-emprestimo {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 15px;
+    }
+
+    .prazo-emprestimo {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .modal-card {
+        width: 95%;
+        padding: 16px;
+        margin: 10px;
+    }
+}
+        
     </style>
 </head>
 <body class="theme-estante">
@@ -505,8 +585,16 @@ if ($dados_livros && $dados_livros->num_rows > 0) {
                         <?php foreach($livros_array as $livro): 
                             $disponivel = (strtolower($livro['status']) === 'disponivel' && $livro['quantidade'] > 0);
                         ?>
-                            <div class="card-livro" data-categoria="<?php echo htmlspecialchars($livro['categoria'] ?? ''); ?>" onclick="abrirModal(<?php echo htmlspecialchars(json_encode($livro)); ?>)">
-                                <div class="capa-mockup">
+<div class="card-livro" 
+     data-categoria="<?php echo htmlspecialchars($livro['categoria'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+     data-titulo="<?php echo htmlspecialchars($livro['titulo'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+     data-autor="<?php echo htmlspecialchars($livro['autor'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+     data-quantidade="<?php echo htmlspecialchars($livro['quantidade'] ?? 0, ENT_QUOTES, 'UTF-8'); ?>"
+     data-status="<?php echo htmlspecialchars($livro['status'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+     data-sinopse="<?php echo htmlspecialchars($livro['sinopse'] ?? 'Sem sinopse disponível.', ENT_QUOTES, 'UTF-8'); ?>"
+     onclick="abrirModalPorCard(this)">
+    
+    <div class="capa-mockup">
                                     <span class="tag-categoria"><?php echo htmlspecialchars($livro['categoria'] ?? 'Geral'); ?></span>
                                     
                                     <?php if(!empty($livro['imagem'])): ?>
@@ -695,25 +783,46 @@ if ($dados_livros && $dados_livros->num_rows > 0) {
         function pedirLivro(nomeLivro) {
             window.location.href = "reserva.php?livro=" + encodeURIComponent(nomeLivro);
         }
+        
+        function abrirModalPorCard(element) {
+            // Cria o objeto livro pegando direto dos atributos data-* do elemento HTML
+            const livro = {
+                titulo: element.getAttribute('data-titulo'),
+                autor: element.getAttribute('data-autor'),
+                categoria: element.getAttribute('data-categoria'),
+                quantidade: parseInt(element.getAttribute('data-quantidade')) || 0,
+                status: element.getAttribute('data-status'),
+                sinopse: element.getAttribute('data-sinopse')
+            };
 
-        function abrirModal(livro) {
-            document.getElementById('modal-titulo').innerText = livro.titulo;
-            document.getElementById('modal-autor').innerText = "Autor: " + livro.autor;
-            document.getElementById('modal-categoria').innerText = livro.categoria || 'Geral';
-            document.getElementById('modal-quantidade').innerText = livro.quantidade + " unidades";
-            document.getElementById('modal-sinopse').innerText = livro.sinopse;
-
-            const disponivel = (livro.status.toLowerCase() === 'disponivel' && livro.quantidade > 0);
-            const footer = document.getElementById('modal-footer');
-            
-            if(disponivel) {
-                footer.innerHTML = `<button class="btn-acao" style="width: 100%; padding: 10px;" onclick="pedirLivro('${livro.titulo.replace(/'/g, "\\'")}')">Reservar Livro Agora</button>`;
-            } else {
-                footer.innerHTML = `<button class="btn-acao" style="width: 100%; background: #4b5563; padding: 10px;" disabled>Exemplar Indisponível</button>`;
-            }
-
-            document.getElementById('modal-livro').style.display = 'flex';
+            abrirModal(livro);
         }
+
+function abrirModal(livro) {
+    console.log("Dados do livro recebidos:", livro); // Olhe o F12 para ver se aparece aqui
+
+    if (!livro) {
+        alert("Erro: Dados do livro não encontrados.");
+        return;
+    }
+
+    document.getElementById('modal-titulo').innerText = livro.titulo || '';
+    document.getElementById('modal-autor').innerText = "Autor: " + (livro.autor || 'Não informado');
+    document.getElementById('modal-categoria').innerText = livro.categoria || 'Geral';
+    document.getElementById('modal-quantidade').innerText = (livro.quantidade !== undefined ? livro.quantidade : 0) + " unidades";
+    document.getElementById('modal-sinopse').innerText = livro.sinopse || 'Sem sinopse disponível.';
+
+    const disponivel = (String(livro.status).toLowerCase() === 'disponivel' && Number(livro.quantidade) > 0);
+    const footer = document.getElementById('modal-footer');
+
+    if(disponivel) {
+        footer.innerHTML = `<button class="btn-acao" style="width: 100%; padding: 10px;" onclick="pedirLivro('${String(livro.titulo).replace(/'/g, "\\'")}')">Reservar Livro Agora</button>`;
+    } else {
+        footer.innerHTML = `<button class="btn-acao" style="width: 100%; background: #4b5563; padding: 10px;" disabled>Exemplar Indisponível</button>`;
+    }
+
+    document.getElementById('modal-livro').style.display = 'flex';
+}
 
         function fecharModal() {
             document.getElementById('modal-livro').style.display = 'none';
@@ -732,6 +841,11 @@ if ($dados_livros && $dados_livros->num_rows > 0) {
         function fecharModalNotificacoes() {
             document.getElementById('modal-notificacoes').style.display = 'none';
         }
+        
+        function pedirLivro(tituloLivro) {
+            window.location.href = 'reserva.php?livro=' + encodeURIComponent(tituloLivro);
+        }
+        
     </script>
 </body>
 </html>

@@ -65,6 +65,7 @@ $avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC");
             margin: 0;
             display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .sidebar {
@@ -77,6 +78,7 @@ $avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC");
             justify-content: space-between;
             box-sizing: border-box;
             flex-shrink: 0;
+            transition: left 0.3s ease;
         }
 
         .sidebar h2 {
@@ -107,11 +109,27 @@ $avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC");
             background: rgba(239, 68, 68, 0.1);
         }
 
+        .menu-toggle {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--brand-color);
+            font-size: 18px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: bold;
+            align-items: center;
+            gap: 8px;
+        }
+
         .main {
             flex-grow: 1;
             padding: 30px;
             box-sizing: border-box;
             overflow-y: auto;
+            width: 100%;
         }
 
         .header-title {
@@ -119,6 +137,8 @@ $avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC");
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .header-title h1 {
@@ -176,9 +196,15 @@ $avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC");
             opacity: 0.9;
         }
 
+        .table-responsive-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
         .table-responsive {
             width: 100%;
             border-collapse: collapse;
+            white-space: nowrap;
         }
 
         .table-responsive th {
@@ -194,12 +220,40 @@ $avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC");
             border-bottom: 1px solid rgba(255,255,255,0.05);
             font-size: 14px;
         }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed !important;
+                left: -260px !important;
+                top: 0 !important;
+                height: 100vh !important;
+                z-index: 99999 !important;
+                width: 250px !important;
+                box-shadow: 5px 0 25px rgba(0,0,0,0.9) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+            }
+
+            .sidebar.active {
+                left: 0 !important;
+            }
+
+            .menu-toggle {
+                display: inline-flex !important;
+            }
+
+            .main {
+                padding: 15px !important;
+                width: 100% !important;
+            }
+        }
     </style>
 </head>
 <body class="theme-estante">
 
     <!-- MENU LATERAL PADRONIZADO -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div>
             <h2>Biblioteca CETEPES</h2>
             <a href="dashboard.php">Dashboard</a>
@@ -216,6 +270,10 @@ $avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC");
 
     <!-- CONTEÚDO PRINCIPAL -->
     <div class="main">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            ☰ Menu
+        </button>
+
         <div class="header-title">
             <h1>Mural de Avisos</h1>
             <span>Bem-vindo(a), <strong><?php echo htmlspecialchars($_SESSION['nome'] ?? 'Administrador'); ?></strong>!</span>
@@ -237,40 +295,48 @@ $avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC");
 
         <div class="panel-box">
             <h2>📌 Avisos Publicados</h2>
-            <table class="table-responsive">
-                <thead>
-                    <tr>
-                        <th>Data</th>
-                        <th>Título</th>
-                        <th>Mensagem</th>
-                        <th>Prioridade</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if ($avisos && $avisos->num_rows > 0): ?>
-                        <?php while ($a = $avisos->fetch_assoc()): ?>
-                            <tr>
-                                <td><?php echo date('d/m/Y H:i', strtotime($a['data_criacao'])); ?></td>
-                                <td><strong><?php echo htmlspecialchars($a['titulo']); ?></strong></td>
-                                <td><?php echo htmlspecialchars($a['mensagem']); ?></td>
-                                <td>
-                                    <span style="color: <?php echo ($a['prioridade'] === 'alta') ? '#ef4444' : '#fbbf24'; ?>; font-weight: bold;">
-                                        <?php echo strtoupper($a['prioridade']); ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="mural.php?deletar=<?php echo $a['ID']; ?>" style="color: #ef4444; font-weight: bold; text-decoration: none;" onclick="return confirm('Deseja excluir este aviso?')">Excluir</a>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
-                        <tr><td colspan="5" style="text-align: center; color: #a1a1aa; padding: 20px;">Nenhum aviso cadastrado.</td></tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+            <div class="table-responsive-wrapper">
+                <table class="table-responsive">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Título</th>
+                            <th>Mensagem</th>
+                            <th>Prioridade</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if ($avisos && $avisos->num_rows > 0): ?>
+                            <?php while ($a = $avisos->fetch_assoc()): ?>
+                                <tr>
+                                    <td><?php echo date('d/m/Y H:i', strtotime($a['data_criacao'])); ?></td>
+                                    <td><strong><?php echo htmlspecialchars($a['titulo']); ?></strong></td>
+                                    <td><?php echo htmlspecialchars($a['mensagem']); ?></td>
+                                    <td>
+                                        <span style="color: <?php echo ($a['prioridade'] === 'alta') ? '#ef4444' : '#fbbf24'; ?>; font-weight: bold;">
+                                            <?php echo strtoupper($a['prioridade']); ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="mural.php?deletar=<?php echo $a['ID']; ?>" style="color: #ef4444; font-weight: bold; text-decoration: none;" onclick="return confirm('Deseja excluir este aviso?')">Excluir</a>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <tr><td colspan="5" style="text-align: center; color: #a1a1aa; padding: 20px;">Nenhum aviso cadastrado.</td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+    </script>
 </body>
 </html>

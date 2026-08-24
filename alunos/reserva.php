@@ -406,6 +406,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             from { transform: scale(0.8); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
+        
+        /* RESPONSIVIDADE PARA CELULARES E TABLETS */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 12px 16px;
+    }
+
+    .reserva-wrapper {
+        padding: 20px 10px;
+    }
+
+    .reserva-card {
+        padding: 20px 16px;
+        width: 100%;
+        border-radius: 12px;
+    }
+
+    .detalhes-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .capa-reserva {
+        width: 120px;
+        height: 170px;
+    }
+
+    .info-livro {
+        width: 100%;
+    }
+
+    .sinopse-box {
+        max-height: 90px;
+        text-align: left;
+    }
+
+    .btn-container {
+        flex-direction: column-reverse;
+        gap: 10px;
+    }
+
+    .btn-confirmar, .btn-cancelar {
+        width: 100%;
+    }
+}
+        
     </style>
 </head>
 <body class="theme-estante">

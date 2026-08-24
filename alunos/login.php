@@ -21,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $senha   = trim($_POST['senha'] ?? '');
 
     if (!empty($usuario) && !empty($senha)) {
-        $stmt = $conn->prepare("SELECT ID, NOME, EMAIL, SENHA, STATUS FROM alunos WHERE EMAIL = ?");
+        // Alterado para trazer também o campo 'perfil_completo'
+        $stmt = $conn->prepare("SELECT ID, NOME, EMAIL, SENHA, STATUS, perfil_completo FROM alunos WHERE EMAIL = ?");
         
         if ($stmt) {
             $stmt->bind_param("s", $usuario);
@@ -36,10 +37,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $senha_correta = password_verify($senha, $aluno['SENHA']) || ($senha === $aluno['SENHA']);
 
                     if ($senha_correta) {
-                        $_SESSION['aluno_id']     = $aluno['ID'];
-                        $_SESSION['aluno_nome']   = $aluno['NOME'];
-                        $_SESSION['aluno_email']  = $aluno['EMAIL'];
+                        $_SESSION['aluno_id']      = $aluno['ID'];
+                        $_SESSION['aluno_nome']    = $aluno['NOME'];
+                        $_SESSION['aluno_email']   = $aluno['EMAIL'];
                         $_SESSION['tipo_usuario'] = 'Aluno';
+
+                        // VERIFICAÇÃO DO PERFIL COMPLETO:
+                        // Se o campo perfil_completo for 0 ou nulo, manda preencher primeiro
+                        if (!isset($aluno['perfil_completo']) || $aluno['perfil_completo'] == 0) {
+                            header("Location: completar_perfil.php");
+                            exit();
+                        }
 
                         header("Location: aluno.php");
                         exit();
@@ -106,7 +114,7 @@ unset($_SESSION['erro_login']);
                      data-client_id="115550235490-qp1sunedndr3que32fingf3pkn89h2mv.apps.googleusercontent.com"
                      data-context="signin"
                      data-ux_mode="redirect"
-                     data-login_uri="http://localhost/Biblioteca-System-main/alunos/login_google.php"
+                     data-login_uri="https://bibliotecacetepes.free.nf/alunos/login_google.php"
                      data-auto_prompt="false">
                 </div>
 

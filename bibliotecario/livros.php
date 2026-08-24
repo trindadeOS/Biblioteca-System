@@ -26,10 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['cadastrar_livro'])) {
 
     // Tratamento do upload da imagem para a pasta alunos/sources/
     if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] == 0) {
-        // Pega o nome original do arquivo enviado
         $nome_imagem = basename($_FILES['imagem']['name']);
-        
-        // Caminho correto apontando para a pasta do aluno/sources na raiz
         $pasta_destino = __DIR__ . "/../alunos/sources/";
         
         if (!is_dir($pasta_destino)) {
@@ -77,25 +74,168 @@ $resultado = $conn->query($sql);
             --input-bg: rgba(0, 0, 0, 0.4);
             --table-header: #28160c;
         }
-        body { background: var(--bg-body) !important; color: var(--text-color) !important; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; display: flex; min-height: 100vh; }
-        .sidebar { width: 250px; background: var(--nav-bg); border-right: 1px solid var(--nav-border); padding: 20px; display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0; }
-        .sidebar h2 { color: var(--brand-color); font-size: 20px; margin-bottom: 30px; text-align: center; }
-        .sidebar a { color: #a1a1aa; text-decoration: none; padding: 12px 15px; display: block; border-radius: 8px; margin-bottom: 8px; font-weight: 600; }
-        .sidebar a:hover, .sidebar a.active { background: rgba(251, 191, 36, 0.15); color: var(--brand-color); }
-        .main { flex-grow: 1; padding: 30px; overflow-y: auto; }
-        .panel-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; margin-bottom: 30px; }
-        .panel-box h3 { color: var(--brand-color); margin-top: 0; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
-        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; background: var(--input-bg); border: 1px solid var(--card-border); color: #fff; border-radius: 6px; box-sizing: border-box; }
+        body { 
+            background: var(--bg-body) !important; 
+            color: var(--text-color) !important; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            min-height: 100vh; 
+            flex-direction: row;
+        }
+        .sidebar { 
+            width: 250px; 
+            background: var(--nav-bg); 
+            border-right: 1px solid var(--nav-border); 
+            padding: 20px; 
+            display: flex !important; 
+            flex-direction: column !important; 
+            justify-content: space-between !important; 
+            flex-shrink: 0; 
+        }
+        .sidebar h2 { 
+            color: var(--brand-color); 
+            font-size: 20px; 
+            margin-bottom: 30px; 
+            text-align: center; 
+        }
+        .sidebar a { 
+            color: #a1a1aa; 
+            text-decoration: none; 
+            padding: 12px 15px; 
+            display: block; 
+            border-radius: 8px; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+        }
+        .sidebar a:hover, .sidebar a.active { 
+            background: rgba(251, 191, 36, 0.15); 
+            color: var(--brand-color); 
+        }
+        
+        /* Botão Hamburguer para Mobile */
+        .menu-toggle {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--brand-color);
+            font-size: 16px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .main { 
+            flex-grow: 1; 
+            padding: 30px; 
+            overflow-y: auto; 
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .panel-box { 
+            background: var(--card-bg); 
+            border: 1px solid var(--card-border); 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-bottom: 30px; 
+            box-sizing: border-box;
+        }
+        .panel-box h3 { 
+            color: var(--brand-color); 
+            margin-top: 0; 
+            border-bottom: 1px solid var(--card-border); 
+            padding-bottom: 10px; 
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 10px; 
+            margin-top: 5px; 
+            margin-bottom: 15px; 
+            background: var(--input-bg); 
+            border: 1px solid var(--card-border); 
+            color: #fff; 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+        }
         input[type="file"] { padding: 8px; cursor: pointer; }
-        button { background: var(--brand-color); color: #1a120c; border: none; padding: 10px 20px; font-weight: 700; border-radius: 6px; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; margin-top: 10px; }
-        th, td { padding: 12px 15px; border-bottom: 1px solid var(--card-border); vertical-align: middle; }
-        th { background-color: var(--table-header); color: var(--brand-color); }
-        .img-capa { width: 40px; height: 55px; object-fit: cover; border-radius: 4px; border: 1px solid var(--card-border); }
+        button[type="submit"] { 
+            background: var(--brand-color); 
+            color: #1a120c; 
+            border: none; 
+            padding: 10px 20px; 
+            font-weight: 700; 
+            border-radius: 6px; 
+            cursor: pointer; 
+        }
+        
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: left; 
+            font-size: 14px; 
+            margin-top: 10px; 
+            white-space: nowrap;
+        }
+        th, td { 
+            padding: 12px 15px; 
+            border-bottom: 1px solid var(--card-border); 
+            vertical-align: middle; 
+        }
+        th { 
+            background-color: var(--table-header); 
+            color: var(--brand-color); 
+        }
+        .img-capa { 
+            width: 40px; 
+            height: 55px; 
+            object-fit: cover; 
+            border-radius: 4px; 
+            border: 1px solid var(--card-border); 
+        }
+
+        /* Responsividade para Telas Menores (Celulares) */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed !important;
+                left: -300px !important;
+                top: 0 !important;
+                height: 100% !important;
+                z-index: 99999 !important;
+                width: 250px !important;
+                transition: left 0.3s ease !important;
+                box-shadow: 5px 0 25px rgba(0,0,0,0.8) !important;
+            }
+
+            .sidebar.ativo {
+                left: 0 !important;
+            }
+
+            .menu-toggle {
+                display: inline-flex !important;
+            }
+
+            .main {
+                padding: 15px !important;
+                width: 100% !important;
+            }
+
+            h1 {
+                font-size: 22px !important;
+            }
+        }
     </style>
 </head>
 <body class="theme-estante">
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div>
             <h2>Bibliotecário</h2>
             <a href="dashboard.php">Dashboard</a>
@@ -105,10 +245,17 @@ $resultado = $conn->query($sql);
             <a href="avisos.php">Mural de Avisos</a>
             <a href="prazos.php">Alunos (Prazos)</a>
         </div>
-        <div class="logout"><a href="logout.php" style="color: #ef4444;">Sair</a></div>
+        <div class="logout">
+    <a href="logout.php" style="color: #ef4444; background: rgba(239, 68, 68, 0.1); border-radius: 8px; padding: 12px 15px; display: block; text-decoration: none; font-weight: 600;">Sair</a>
+</div>
     </div>
 
     <div class="main">
+        <!-- Botão para abrir o menu no mobile -->
+        <button class="menu-toggle" onclick="toggleMenu()">
+            ☰ Menu
+        </button>
+
         <h1>Gerenciamento de Acervo</h1>
         <?php echo $mensagem; ?>
 
@@ -139,43 +286,52 @@ $resultado = $conn->query($sql);
 
         <div class="panel-box">
             <h3>Livros Cadastrados</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Capa</th>
-                        <th>ID</th>
-                        <th>Título</th>
-                        <th>Autor</th>
-                        <th>Categoria</th>
-                        <th>Qtd</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if ($resultado && $resultado->num_rows > 0): ?>
-                        <?php while($row = $resultado->fetch_assoc()): ?>
-                            <tr>
-                                <td>
-                                    <?php if (!empty($row['imagem'])): ?>
-                                        <img src="../alunos/sources/<?php echo htmlspecialchars($row['imagem']); ?>" alt="Capa" class="img-capa">
-                                    <?php else: ?>
-                                        <div style="width: 40px; height: 55px; background: rgba(255,255,255,0.05); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #71717a;">Sem foto</div>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?php echo $row['id']; ?></td>
-                                <td><?php echo htmlspecialchars($row['titulo']); ?></td>
-                                <td><?php echo htmlspecialchars($row['autor']); ?></td>
-                                <td><?php echo htmlspecialchars($row['categoria']); ?></td>
-                                <td><?php echo $row['quantidade']; ?></td>
-                                <td><?php echo htmlspecialchars($row['status']); ?></td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
-                        <tr><td colspan="7">Nenhum livro cadastrado.</td></tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Capa</th>
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>Autor</th>
+                            <th>Categoria</th>
+                            <th>Qtd</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if ($resultado && $resultado->num_rows > 0): ?>
+                            <?php while($row = $resultado->fetch_assoc()): ?>
+                                <tr>
+                                    <td>
+                                        <?php if (!empty($row['imagem'])): ?>
+                                            <img src="../alunos/sources/<?php echo htmlspecialchars($row['imagem']); ?>" alt="Capa" class="img-capa">
+                                        <?php else: ?>
+                                            <div style="width: 40px; height: 55px; background: rgba(255,255,255,0.05); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #71717a;">Sem foto</div>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?php echo $row['id']; ?></td>
+                                    <td><?php echo htmlspecialchars($row['titulo']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['autor']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['categoria']); ?></td>
+                                    <td><?php echo $row['quantidade']; ?></td>
+                                    <td><?php echo htmlspecialchars($row['status']); ?></td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <tr><td colspan="7">Nenhum livro cadastrado.</td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+
+    <script>
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('ativo');
+        }
+    </script>
 </body>
 </html>

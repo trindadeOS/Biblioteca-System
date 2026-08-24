@@ -73,6 +73,7 @@ $res_avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC LIMI
             margin: 0;
             display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* Sidebar Styling */
@@ -86,6 +87,7 @@ $res_avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC LIMI
             justify-content: space-between;
             box-sizing: border-box;
             flex-shrink: 0;
+            transition: left 0.3s ease;
         }
 
         .sidebar h2 {
@@ -116,12 +118,28 @@ $res_avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC LIMI
             background: rgba(239, 68, 68, 0.1);
         }
 
+        .menu-toggle {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--brand-color);
+            font-size: 18px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: bold;
+            align-items: center;
+            gap: 8px;
+        }
+
         /* Main Content */
         .main {
             flex-grow: 1;
             padding: 30px;
             box-sizing: border-box;
             overflow-y: auto;
+            width: 100%;
         }
 
         .header-title {
@@ -129,6 +147,8 @@ $res_avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC LIMI
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .header-title h1 {
@@ -192,9 +212,15 @@ $res_avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC LIMI
         }
 
         /* Tables */
+        .table-responsive-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
         .table-responsive {
             width: 100%;
             border-collapse: collapse;
+            white-space: nowrap;
         }
 
         .table-responsive th {
@@ -235,12 +261,46 @@ $res_avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC LIMI
             font-size: 12px;
             color: #a1a1aa;
         }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed !important;
+                left: -260px !important;
+                top: 0 !important;
+                height: 100vh !important;
+                z-index: 99999 !important;
+                width: 250px !important;
+                box-shadow: 5px 0 25px rgba(0,0,0,0.9) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+            }
+
+            .sidebar.active {
+                left: 0 !important;
+            }
+
+            .menu-toggle {
+                display: inline-flex !important;
+            }
+
+            .main {
+                padding: 15px !important;
+                width: 100% !important;
+            }
+        }
     </style>
 </head>
 <body class="theme-estante">
 
     <!-- MENU LATERAL -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div>
             <h2>Biblioteca CETEPES</h2>
             <a href="dashboard.php" class="active">Dashboard</a>
@@ -257,6 +317,10 @@ $res_avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC LIMI
 
     <!-- CONTEÚDO PRINCIPAL -->
     <div class="main">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            ☰ Menu
+        </button>
+
         <div class="header-title">
             <h1>Painel de Controle</h1>
             <span>Bem-vindo(a), <strong><?php echo htmlspecialchars($_SESSION['nome'] ?? 'Administrador'); ?></strong>!</span>
@@ -289,37 +353,39 @@ $res_avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC LIMI
             
             <!-- COLUNA ESQUERDA: DEVOLUÇÕES EM ATRASO -->
             <div class="panel-box">
-                <h2> Empréstimos Atrasados (Atenção)</h2>
-                <table class="table-responsive">
-                    <thead>
-                        <tr>
-                            <th>Aluno</th>
-                            <th>Livro</th>
-                            <th>Data Limite</th>
-                            <th>Contato</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if ($res_atrasados && $res_atrasados->num_rows > 0): ?>
-                            <?php while ($row = $res_atrasados->fetch_assoc()): ?>
-                                <tr>
-                                    <td><strong><?php echo htmlspecialchars($row['NOME']); ?></strong></td>
-                                    <td><?php echo htmlspecialchars($row['LIVRO']); ?></td>
-                                    <td style="color: #ef4444; font-weight: bold;">
-                                        <?php echo date('d/m/Y', strtotime($row['DATA'])); ?>
-                                    </td>
-                                    <td><?php echo htmlspecialchars($row['TELEFONE'] ?? 'Sem fone'); ?></td>
-                                </tr>
-                            <?php endwhile; ?>
-                        <?php else: ?>
+                <h2>⚠️ Empréstimos Atrasados (Atenção)</h2>
+                <div class="table-responsive-wrapper">
+                    <table class="table-responsive">
+                        <thead>
                             <tr>
-                                <td colspan="4" style="text-align: center; color: #10b981; padding: 20px;">
-                                    ✅ Nenhuma devolução pendente/atrasada no momento!
-                                </td>
+                                <th>Aluno</th>
+                                <th>Livro</th>
+                                <th>Data Limite</th>
+                                <th>Contato</th>
                             </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <?php if ($res_atrasados && $res_atrasados->num_rows > 0): ?>
+                                <?php while ($row = $res_atrasados->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><strong><?php echo htmlspecialchars($row['NOME']); ?></strong></td>
+                                        <td><?php echo htmlspecialchars($row['LIVRO']); ?></td>
+                                        <td style="color: #ef4444; font-weight: bold;">
+                                            <?php echo date('d/m/Y', strtotime($row['DATA'])); ?>
+                                        </td>
+                                        <td><?php echo htmlspecialchars($row['TELEFONE'] ?? 'Sem fone'); ?></td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: #10b981; padding: 20px;">
+                                        ✅ Nenhuma devolução pendente/atrasada no momento!
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- COLUNA DIREITA: AVISOS DO MURAL DA BIBLIOTECA -->
@@ -350,5 +416,11 @@ $res_avisos = $conn->query("SELECT * FROM avisos ORDER BY data_criacao DESC LIMI
         </div>
     </div>
 
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+    </script>
 </body>
 </html>

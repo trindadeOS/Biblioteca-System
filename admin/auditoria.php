@@ -12,7 +12,6 @@ if (!isset($_SESSION['tipo']) || strtoupper($_SESSION['tipo']) !== 'ADMIN') {
     exit();
 }
 
-// Query com JOIN para trazer o Nome do Usuário Responsável
 $sql_auditoria = "
     SELECT 
         a.ID, 
@@ -57,6 +56,7 @@ $res_auditoria = $conn->query($sql_auditoria);
             margin: 0;
             display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .sidebar {
@@ -69,6 +69,7 @@ $res_auditoria = $conn->query($sql_auditoria);
             justify-content: space-between;
             box-sizing: border-box;
             flex-shrink: 0;
+            transition: left 0.3s ease;
         }
 
         .sidebar h2 {
@@ -99,11 +100,27 @@ $res_auditoria = $conn->query($sql_auditoria);
             background: rgba(239, 68, 68, 0.1);
         }
 
+        .menu-toggle {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--brand-color);
+            font-size: 18px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: bold;
+            align-items: center;
+            gap: 8px;
+        }
+
         .main {
             flex-grow: 1;
             padding: 30px;
             box-sizing: border-box;
             overflow-y: auto;
+            width: 100%;
         }
 
         .header-title {
@@ -111,6 +128,8 @@ $res_auditoria = $conn->query($sql_auditoria);
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .header-title h1 {
@@ -135,9 +154,15 @@ $res_auditoria = $conn->query($sql_auditoria);
             margin-bottom: 20px;
         }
 
+        .table-responsive-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
         .table-responsive {
             width: 100%;
             border-collapse: collapse;
+            white-space: nowrap;
         }
 
         .table-responsive th {
@@ -161,7 +186,6 @@ $res_auditoria = $conn->query($sql_auditoria);
             background: rgba(251, 191, 36, 0.03);
         }
 
-        /* Estilização de Badges */
         .badge {
             display: inline-block;
             padding: 4px 10px;
@@ -204,11 +228,39 @@ $res_auditoria = $conn->query($sql_auditoria);
             color: #71717a;
             font-size: 11px;
         }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed !important;
+                left: -260px !important;
+                top: 0 !important;
+                height: 100vh !important;
+                z-index: 99999 !important;
+                width: 250px !important;
+                box-shadow: 5px 0 25px rgba(0,0,0,0.9) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+            }
+
+            .sidebar.active {
+                left: 0 !important;
+            }
+
+            .menu-toggle {
+                display: inline-flex !important;
+            }
+
+            .main {
+                padding: 15px !important;
+                width: 100% !important;
+            }
+        }
     </style>
 </head>
 <body class="theme-estante">
 
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div>
             <h2>Biblioteca CETEPES</h2>
             <a href="dashboard.php">Dashboard</a>
@@ -224,6 +276,10 @@ $res_auditoria = $conn->query($sql_auditoria);
     </div>
 
     <div class="main">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            ☰ Menu
+        </button>
+
         <div class="header-title">
             <h1>Painel de Controle</h1>
             <span>Bem-vindo(a), <strong><?php echo htmlspecialchars($_SESSION['nome'] ?? 'Administrador'); ?></strong>!</span>
@@ -232,49 +288,57 @@ $res_auditoria = $conn->query($sql_auditoria);
         <div class="panel-box">
             <h2>📜 Histórico de Auditoria do Sistema</h2>
             
-            <table class="table-responsive">
-                <thead>
-                    <tr>
-                        <th>#ID</th>
-                        <th>Tabela Afetada</th>
-                        <th>Usuário Responsável</th>
-                        <th>Operação</th>
-                        <th>Data / Hora</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php 
-                    if ($res_auditoria && $res_auditoria->num_rows > 0) {
-                        while($row = $res_auditoria->fetch_assoc()) {
-                            $operacao = strtoupper($row['Tipo_Operacao']);
-                            $badge_class = 'badge-insert';
-                            if ($operacao == 'UPDATE') $badge_class = 'badge-update';
-                            if ($operacao == 'DELETE') $badge_class = 'badge-delete';
-                            
-                            $nome_usuario = $row['Nome_Usuario'] ?? 'Usuário Removido';
-                            $data_formatada = isset($row['data_acao']) ? date('d/m/Y H:i:s', strtotime($row['data_acao'])) : 'N/A';
+            <div class="table-responsive-wrapper">
+                <table class="table-responsive">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th>Tabela Afetada</th>
+                            <th>Usuário Responsável</th>
+                            <th>Operação</th>
+                            <th>Data / Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        if ($res_auditoria && $res_auditoria->num_rows > 0) {
+                            while($row = $res_auditoria->fetch_assoc()) {
+                                $operacao = strtoupper($row['Tipo_Operacao']);
+                                $badge_class = 'badge-insert';
+                                if ($operacao == 'UPDATE') $badge_class = 'badge-update';
+                                if ($operacao == 'DELETE') $badge_class = 'badge-delete';
+                                
+                                $nome_usuario = $row['Nome_Usuario'] ?? 'Usuário Removido';
+                                $data_formatada = isset($row['data_acao']) ? date('d/m/Y H:i:s', strtotime($row['data_acao'])) : 'N/A';
 
-                            echo "<tr>";
-                            echo "<td style='color: #71717a; font-weight: 600;'>#" . htmlspecialchars($row['ID']) . "</td>";
-                            echo "<td><strong style='color: var(--brand-color);'>" . htmlspecialchars($row['Tabela_Afetada']) . "</strong></td>";
-                            echo "<td>
-                                    <div class='user-info'>
-                                        <span class='name'>" . htmlspecialchars($nome_usuario) . "</span>
-                                        <span class='id'>ID responsável: #" . htmlspecialchars($row['User_Responsavel']) . "</span>
-                                    </div>
-                                  </td>";
-                            echo "<td><span class='badge {$badge_class}'>" . htmlspecialchars($operacao) . "</span></td>";
-                            echo "<td style='color: #a1a1aa; font-size: 13px;'>" . $data_formatada . "</td>";
-                            echo "</tr>";
+                                echo "<tr>";
+                                echo "<td style='color: #71717a; font-weight: 600;'>#" . htmlspecialchars($row['ID']) . "</td>";
+                                echo "<td><strong style='color: var(--brand-color);'>" . htmlspecialchars($row['Tabela_Afetada']) . "</strong></td>";
+                                echo "<td>
+                                        <div class='user-info'>
+                                            <span class='name'>" . htmlspecialchars($nome_usuario) . "</span>
+                                            <span class='id'>ID responsável: #" . htmlspecialchars($row['User_Responsavel']) . "</span>
+                                        </div>
+                                      </td>";
+                                echo "<td><span class='badge {$badge_class}'>" . htmlspecialchars($operacao) . "</span></td>";
+                                echo "<td style='color: #a1a1aa; font-size: 13px;'>" . $data_formatada . "</td>";
+                                echo "</tr>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='5' style='text-align:center; color:#a1a1aa; padding: 24px;'>Nenhum registro de auditoria foi encontrado.</td></tr>";
                         }
-                    } else {
-                        echo "<tr><td colspan='5' style='text-align:center; color:#a1a1aa; padding: 24px;'>Nenhum registro de auditoria foi encontrado.</td></tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
+                        ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+    </script>
 </body>
 </html>

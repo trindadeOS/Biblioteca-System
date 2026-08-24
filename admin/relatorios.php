@@ -42,6 +42,7 @@ $atrasados  = $conn->query("SELECT * FROM emp_pessoal WHERE DATEDIFF(DATA, NOW()
             margin: 0;
             display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .sidebar {
@@ -54,6 +55,7 @@ $atrasados  = $conn->query("SELECT * FROM emp_pessoal WHERE DATEDIFF(DATA, NOW()
             justify-content: space-between;
             box-sizing: border-box;
             flex-shrink: 0;
+            transition: left 0.3s ease;
         }
 
         .sidebar h2 {
@@ -84,11 +86,27 @@ $atrasados  = $conn->query("SELECT * FROM emp_pessoal WHERE DATEDIFF(DATA, NOW()
             background: rgba(239, 68, 68, 0.1);
         }
 
+        .menu-toggle {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--brand-color);
+            font-size: 18px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: bold;
+            align-items: center;
+            gap: 8px;
+        }
+
         .main {
             flex-grow: 1;
             padding: 30px;
             box-sizing: border-box;
             overflow-y: auto;
+            width: 100%;
         }
 
         .header-title {
@@ -96,6 +114,8 @@ $atrasados  = $conn->query("SELECT * FROM emp_pessoal WHERE DATEDIFF(DATA, NOW()
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .header-title h1 {
@@ -131,9 +151,15 @@ $atrasados  = $conn->query("SELECT * FROM emp_pessoal WHERE DATEDIFF(DATA, NOW()
             cursor: pointer;
         }
 
+        .table-responsive-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
         .table-responsive {
             width: 100%;
             border-collapse: collapse;
+            white-space: nowrap;
         }
 
         .table-responsive th {
@@ -151,16 +177,44 @@ $atrasados  = $conn->query("SELECT * FROM emp_pessoal WHERE DATEDIFF(DATA, NOW()
         }
 
         @media print {
-            .sidebar, .btn-print { display: none !important; }
+            .sidebar, .btn-print, .menu-toggle { display: none !important; }
             .main { padding: 0 !important; width: 100% !important; }
             body { background: #fff !important; color: #000 !important; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed !important;
+                left: -260px !important;
+                top: 0 !important;
+                height: 100vh !important;
+                z-index: 99999 !important;
+                width: 250px !important;
+                box-shadow: 5px 0 25px rgba(0,0,0,0.9) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+            }
+
+            .sidebar.active {
+                left: 0 !important;
+            }
+
+            .menu-toggle {
+                display: inline-flex !important;
+            }
+
+            .main {
+                padding: 15px !important;
+                width: 100% !important;
+            }
         }
     </style>
 </head>
 <body class="theme-estante">
 
     <!-- MENU LATERAL PADRONIZADO -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div>
             <h2>Biblioteca CETEPES</h2>
             <a href="dashboard.php">Dashboard</a>
@@ -177,6 +231,10 @@ $atrasados  = $conn->query("SELECT * FROM emp_pessoal WHERE DATEDIFF(DATA, NOW()
 
     <!-- CONTEÚDO PRINCIPAL -->
     <div class="main">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            ☰ Menu
+        </button>
+
         <div class="header-title">
             <h1>Relatórios Consolidados</h1>
             <button onclick="window.print()" class="btn-print">🖨️ Imprimir Relatório</button>
@@ -199,32 +257,40 @@ $atrasados  = $conn->query("SELECT * FROM emp_pessoal WHERE DATEDIFF(DATA, NOW()
 
         <div class="panel-box">
             <h2 style="color: #ef4444;">🚨 Empréstimos Atrasados</h2>
-            <table class="table-responsive">
-                <thead>
-                    <tr>
-                        <th>Aluno</th>
-                        <th>Livro</th>
-                        <th>Telefone</th>
-                        <th>Data Limite</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if ($atrasados && $atrasados->num_rows > 0): ?>
-                        <?php while ($at = $atrasados->fetch_assoc()): ?>
-                            <tr>
-                                <td><strong><?php echo htmlspecialchars($at['NOME']); ?></strong></td>
-                                <td><?php echo htmlspecialchars($at['LIVRO']); ?></td>
-                                <td><?php echo htmlspecialchars($at['TELEFONE'] ?? 'Sem fone'); ?></td>
-                                <td style="color: #ef4444; font-weight: bold;"><?php echo date('d/m/Y', strtotime($at['DATA'])); ?></td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
-                        <tr><td colspan="4" style="text-align: center; color: #10b981; padding: 20px;">✅ Nenhum atraso pendente no momento!</td></tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+            <div class="table-responsive-wrapper">
+                <table class="table-responsive">
+                    <thead>
+                        <tr>
+                            <th>Aluno</th>
+                            <th>Livro</th>
+                            <th>Telefone</th>
+                            <th>Data Limite</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if ($atrasados && $atrasados->num_rows > 0): ?>
+                            <?php while ($at = $atrasados->fetch_assoc()): ?>
+                                <tr>
+                                    <td><strong><?php echo htmlspecialchars($at['NOME']); ?></strong></td>
+                                    <td><?php echo htmlspecialchars($at['LIVRO']); ?></td>
+                                    <td><?php echo htmlspecialchars($at['TELEFONE'] ?? 'Sem fone'); ?></td>
+                                    <td style="color: #ef4444; font-weight: bold;"><?php echo date('d/m/Y', strtotime($at['DATA'])); ?></td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <tr><td colspan="4" style="text-align: center; color: #10b981; padding: 20px;">✅ Nenhum atraso pendente no momento!</td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+    </script>
 </body>
 </html>

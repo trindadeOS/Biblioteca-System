@@ -33,7 +33,7 @@ $sql_pendentes = "SELECT COUNT(*) AS total FROM emprestimos WHERE UPPER(STATUS) 
 $res_pendentes = $conn->query($sql_pendentes);
 $total_pendentes = ($res_pendentes) ? $res_pendentes->fetch_assoc()['total'] : 0;
 
-// 5. Listar os últimos pedidos pendentes utilizando diretamente as colunas da tabela emprestimos
+// 5. Listar os últimos pedidos pendentes
 $sql_ultimos_pendentes = "SELECT * FROM emprestimos WHERE UPPER(STATUS) = 'PENDENTE' ORDER BY ID DESC LIMIT 5";
 $res_ultimos = $conn->query($sql_ultimos_pendentes);
 ?>
@@ -66,8 +66,10 @@ $res_ultimos = $conn->query($sql_ultimos_pendentes);
             margin: 0;
             display: flex;
             min-height: 100vh;
+            flex-direction: row;
         }
 
+        /* Sidebar padrão (Desktop) */
         .sidebar {
             width: 250px;
             background: var(--nav-bg);
@@ -108,11 +110,28 @@ $res_ultimos = $conn->query($sql_ultimos_pendentes);
             background: rgba(239, 68, 68, 0.1);
         }
 
+        /* Botão Hamburguer para Mobile */
+        .menu-toggle {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--brand-color);
+            font-size: 16px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
         .main {
             flex-grow: 1;
             padding: 30px;
             box-sizing: border-box;
             overflow-y: auto;
+            width: 100%;
         }
 
         .header-title {
@@ -120,6 +139,8 @@ $res_ultimos = $conn->query($sql_ultimos_pendentes);
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .header-title h1 {
@@ -130,7 +151,7 @@ $res_ultimos = $conn->query($sql_ultimos_pendentes);
 
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -145,7 +166,7 @@ $res_ultimos = $conn->query($sql_ultimos_pendentes);
 
         .card-stat h3 {
             margin: 0;
-            font-size: 14px;
+            font-size: 13px;
             color: #a1a1aa;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -164,6 +185,7 @@ $res_ultimos = $conn->query($sql_ultimos_pendentes);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 30px;
+            box-sizing: border-box;
         }
 
         .panel-box h3 {
@@ -184,8 +206,6 @@ $res_ultimos = $conn->query($sql_ultimos_pendentes);
             text-decoration: none;
             font-weight: 700;
             font-size: 14px;
-            margin-right: 10px;
-            margin-top: 10px;
             transition: opacity 0.2s;
         }
 
@@ -203,6 +223,7 @@ $res_ultimos = $conn->query($sql_ultimos_pendentes);
             border-collapse: collapse;
             text-align: left;
             font-size: 14px;
+            white-space: nowrap;
         }
 
         th, td {
@@ -219,11 +240,45 @@ $res_ultimos = $conn->query($sql_ultimos_pendentes);
         tr:hover {
             background: rgba(255, 255, 255, 0.02);
         }
+
+        /* Responsividade para Telas Menores (Celulares) */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed !important;
+                left: -260px !important;
+                top: 0 !important;
+                height: 100% !important;
+                z-index: 99999 !important;
+                width: 250px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+                transition: left 0.3s ease !important;
+                box-shadow: 5px 0 25px rgba(0,0,0,0.8) !important;
+            }
+
+            .sidebar.ativo {
+                left: 0 !important;
+            }
+
+            .menu-toggle {
+                display: inline-flex !important;
+            }
+
+            .main {
+                padding: 15px !important;
+                width: 100% !important;
+            }
+
+            .header-title h1 {
+                font-size: 22px !important;
+            }
+        }
     </style>
 </head>
 <body class="theme-estante">
 
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div>
             <h2>Bibliotecário</h2>
             <a href="dashboard.php" class="active">Dashboard</a>
@@ -239,6 +294,11 @@ $res_ultimos = $conn->query($sql_ultimos_pendentes);
     </div>
 
     <div class="main">
+        <!-- Botão para abrir o menu no mobile -->
+        <button class="menu-toggle" onclick="toggleMenu()">
+            ☰ Menu
+        </button>
+
         <div class="header-title">
             <h1>Painel do Bibliotecário</h1>
             <span>Bem-vindo(a), <strong><?php echo htmlspecialchars($_SESSION['nome'] ?? 'Operador'); ?></strong>!</span>
@@ -299,14 +359,21 @@ $res_ultimos = $conn->query($sql_ultimos_pendentes);
             <h3>Ações Rápidas do Operador</h3>
             <p style="margin-top: 10px; color: #a1a1aa; font-size: 14px;">Utilize o menu lateral para gerenciar o acervo de livros, aprovar solicitações dos alunos, cadastrar avisos de prioridade ou criar novos pedidos manualmente.</p>
             
-            <div style="margin-top: 20px;">
-                <a href="registrar_pedido.php" class="btn-atalho">➕ Novo Pedido</a>
-                <a href="avisos.php" class="btn-atalho" style="background: #a855f7; color: #fff;">📢 Gerenciar Avisos</a>
-                <a href="prazos.php" class="btn-atalho" style="background: #10b981; color: #fff;">⏱️ Ver Prazos de Alunos</a>
+            <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
+                <a href="registrar_pedido.php" class="btn-atalho" style="margin: 0;">➕ Novo Pedido</a>
+                <a href="avisos.php" class="btn-atalho" style="background: #a855f7; color: #fff; margin: 0;">📢 Gerenciar Avisos</a>
+                <a href="prazos.php" class="btn-atalho" style="background: #10b981; color: #fff; margin: 0;">⏱️ Ver Prazos de Alunos</a>
             </div>
         </div>
 
     </div>
+
+    <script>
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('ativo');
+        }
+    </script>
 
 </body>
 </html>

@@ -86,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin: 0;
             display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .sidebar {
@@ -98,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             justify-content: space-between;
             box-sizing: border-box;
             flex-shrink: 0;
+            transition: left 0.3s ease;
         }
 
         .sidebar h2 {
@@ -128,11 +130,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background: rgba(239, 68, 68, 0.1);
         }
 
+        .menu-toggle {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--brand-color);
+            font-size: 18px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: bold;
+            align-items: center;
+            gap: 8px;
+        }
+
         .main {
             flex-grow: 1;
             padding: 30px;
             box-sizing: border-box;
             overflow-y: auto;
+            width: 100%;
         }
 
         .header-title {
@@ -140,6 +158,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .header-title h1 {
@@ -225,11 +245,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             color: #ef4444;
             border: 1px solid #ef4444;
         }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed !important;
+                left: -260px !important;
+                top: 0 !important;
+                height: 100vh !important;
+                z-index: 99999 !important;
+                width: 250px !important;
+                box-shadow: 5px 0 25px rgba(0,0,0,0.9) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+            }
+
+            .sidebar.active {
+                left: 0 !important;
+            }
+
+            .menu-toggle {
+                display: inline-flex !important;
+            }
+
+            .main {
+                padding: 15px !important;
+                width: 100% !important;
+            }
+        }
     </style>
 </head>
 <body class="theme-estante">
 
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div>
             <h2>Biblioteca CETEPES</h2>
             <a href="dashboard.php">Dashboard</a>
@@ -245,6 +293,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <div class="main">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            ☰ Menu
+        </button>
+
         <div class="header-title">
             <h1>Painel de Controle</h1>
             <span>Bem-vindo(a), <strong><?php echo htmlspecialchars($_SESSION['nome'] ?? 'Administrador'); ?></strong>!</span>
@@ -286,5 +338,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+    </script>
 </body>
 </html>
